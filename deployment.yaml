@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-hostpath
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-hostpath
+  template:
+    metadata:
+      labels:
+        app: nginx-hostpath
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+        - name: node-data
+          mountPath: /volumes  # Where it appears in container
+      volumes:
+      - name: node-data
+        hostPath:
+          path: /var/openebs/local/  # Path on host node
+          # path: /var/snap/microk8s/common/default-storage
+          type: Directory  # Ensures directory exists
