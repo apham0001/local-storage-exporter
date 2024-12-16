@@ -66,9 +66,9 @@ class LocalStorageExporter:
             raise
 
         self.gauge = Gauge(
-            name="lse_pv_used_bytes",
+            name="local_storage_pv_used_bytes",
             documentation="The amount of bytes used by local storage volume",
-            labelnames=["pvc_name", "pv_name", "storage_path", "storage_capacity"],
+            labelnames=["pvc_name", "pv_name", "storage_path", "storage_capacity", "storage_class_name"],
         )
         self.storage_class_name = storage_class_name
 
@@ -76,7 +76,7 @@ class LocalStorageExporter:
         volumes = []
         pvs: V1PersistentVolumeList = self.k8s_client.list_persistent_volume()
         for pv in pvs.items:
-            if pv.spec.storage_class_name == "openebs-hostpath":
+            if pv.spec.storage_class_name == self.storage_class_name:
                 volumes.append(
                     Volume(
                         pvc_name=pv.spec.claim_ref.name,
@@ -114,6 +114,7 @@ class LocalStorageExporter:
                     volume.pv_name,
                     volume.storage_path,
                     volume.storage_capacity,
+                    self.storage_class_name
                 ).set(usage)
             else:
                 self.gauge.labels(
@@ -121,6 +122,7 @@ class LocalStorageExporter:
                     volume.pv_name,
                     volume.storage_path,
                     volume.storage_capacity,
+                    self.storage_class_name
                 ).set(-1.0)
 
 
