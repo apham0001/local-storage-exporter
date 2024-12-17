@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: local-storage-exporter-deployment
+  name: local-storage-exporter-kind-deployment2
 spec:
   replicas: 1
   selector:
@@ -25,13 +25,13 @@ spec:
               name: metrics
           env:
             - name: STORAGE_CLASS_NAME
-              value: "openebs-hostpath"
+              value: "standard"
       volumes:
         - name: node-data
           hostPath:
-            path: /var/openebs/local/ # Path on host node
+            # path: /var/openebs/local/ # Path on host node
             # path: /var/snap/microk8s/common/default-storage
-            # path: /var/local-path-provisioner
+            path: /var/local-path-provisioner
             type: Directory # Ensures directory exists
 
 ---

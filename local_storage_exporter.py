@@ -122,9 +122,15 @@ class LocalStorageExporter:
         return pvs
 
     def get_pv_usage(self, pv: V1PersistentVolume) -> int | None:
-        base_name = os.path.basename(pv.spec.local.path)
-        dir_name = os.path.dirname(pv.spec.local.path)
-
+        if pv.spec.local is not None:
+            base_name = os.path.basename(pv.spec.local.path)
+            dir_name = os.path.dirname(pv.spec.local.path)
+        elif pv.spec.host_path is not None:
+            base_name = os.path.basename(pv.spec.host_path.path)
+            dir_name = os.path.dirname(pv.spec.host_path.path)
+        else: 
+            _logger.error(f"PV {pv.metadata.name} does not have local or hostpath spec")
+            return
         path: Path = self.hostpath_mount_paths.get(Path(dir_name))
         if path is None:
             _logger.error(f"Failed to find hostpath mount path for {dir_name}")
@@ -151,12 +157,17 @@ class LocalStorageExporter:
         pvs = self.get_pvs()
         for pv in pvs.items:
             usage = self.get_pv_usage(pv)
+            pvc_name = pv.spec.claim_ref.name
+            pv_name = pv.metadata.name
+            storage_path = pv.spec.local.path if pv.spec.local else pv.spec.host_path.path
+            storage_capacity = convert_storage_capacity_to_bytes(pv.spec.capacity["storage"])
+            storage_class_name = self.storage_class_name
             gauge = self.gauge.labels(
-                pv.spec.claim_ref.name,
-                pv.metadata.name,
-                pv.spec.local.path,
-                convert_storage_capacity_to_bytes(pv.spec.capacity["storage"]),
-                self.storage_class_name,
+                pvc_name,
+                pv_name,
+                storage_path,
+                storage_capacity,
+                storage_class_name,
             )
             if usage is not None:
                 gauge.set(usage)
