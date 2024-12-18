@@ -1,26 +1,33 @@
-{{ $metricsPort := .Values.metricsPort | required ".Values.metricsPort is required" }}
-{{ $storageClassName := .Values.storageClassName | required ".Values.storageClassName is required" }}
-{{ $storagePath := .Values.storagePath | required ".Values.storagePath is required" }}
+{{ include "validate.requiredValues" . }}
+{{ $metricsPort := include "validate.metricsPort" . }}
+{{ include "validate.imagePullPolicy" . }}
+{{ include "validate.imagePullSecrets" . }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: local-storage-exporter-multipass-deployment
+  name: {{ .Release.Name }}-local-storage-exporter-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: local-storage-exporter
+      app: {{ .Release.Name }}-local-storage-exporter
   template:
     metadata:
       labels:
-        app: local-storage-exporter
+        app: {{ .Release.Name }}-local-storage-exporter
     spec:
-      serviceAccountName: local-storage-exporter-serviceaccount
+      serviceAccountName: {{ .Release.Name }}-local-storage-exporter-serviceaccount
       containers:
-        - name: local-storage-exporter
-          image: local-storage-exporter:latest
-          imagePullPolicy: Never
+        - name: {{ .Release.Name }}-local-storage-exporter
+          image: local-storage-exporter:{{ .Values.tag }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          {{ if .Values.imagePullSecrets }}
+          imagePullSecrets:
+          {{ range .Values.imagePullSecrets }}
+            - name: {{ .name }}
+          {{ end }}
+          {{ end }}
           volumeMounts:
             - name: node-data
               mountPath: /volumes # Where it appears in container
@@ -30,11 +37,11 @@ spec:
               name: metrics
           env:
             - name: STORAGE_CLASS_NAME
-              value: {{ $storageClassName }}
+              value: {{ .Values.storageClassName }}
             - name: METRICS_PORT
               value: {{ quote $metricsPort }}
       volumes:
         - name: node-data
           hostPath:
-            path: {{ $storagePath }}
+            path: {{ .Values.storagePath }}
             type: Directory # Ensures directory exists

@@ -1,3 +1,13 @@
 storageClassName:
 storagePath:
+
 metricsPort: 9100
+
+serviceMonitor:
+  enabled: false
+podMonitor:
+  enabled: false
+
+imagePullPolicy: IfNotPresent
+imagePullSecrets: []
+tag: latest

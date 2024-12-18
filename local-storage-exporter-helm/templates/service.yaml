@@ -1,14 +1,16 @@
+{{ $metricsPort := include "validate.metricsPort" . }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: local-storage-exporter-service
+  name: {{ .Release.Name }}-local-storage-exporter-service
   labels:
-    app: local-storage-exporter
+    app: {{ .Release.Name }}-local-storage-exporter
 spec:
   selector:
-    app: local-storage-exporter
+    app: {{ .Release.Name }}-local-storage-exporter
   ports:
     - protocol: TCP
       name: metrics
-      port: 9100
+      port: {{ $metricsPort }}
       targetPort: metrics
