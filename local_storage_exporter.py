@@ -51,16 +51,9 @@ class LocalStorageExporter:
     def __init__(
         self,
         storage_class_name: str,
-        incluster: bool = True,
-        config_file: str | None = None,
     ):
         try:
-            if incluster:
-                config.load_incluster_config()
-            elif config_file:
-                config.load_config(config_file)
-            else:
-                config.load_config()
+            config.load_incluster_config()
             self.k8s_client = client.CoreV1Api()
         except config.ConfigException as e:
             _logger.error(f"Failed to load k8s config: {e}")
