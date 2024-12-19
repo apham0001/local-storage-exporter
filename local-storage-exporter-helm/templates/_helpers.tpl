@@ -1,6 +1,9 @@
 {{/* Validate that essential values like storageClassName and storagePath are provided. */}}
 {{- define "validate.requiredValues" -}}
-{{ $storageClassName := .Values.storageClassName | required ".Values.storageClassName is required" }}
+{{- if empty .Values.storageClassNames -}}
+{{ fail "Please provide an array of storageclass names" }}
+{{- end -}}
+{{ $storageClassNames := .Values.storageClassNames | required ".Values.storageClassNames is required" }}
 {{ $storagePath := .Values.storagePath | required ".Values.storagePath is required" }}
 {{- end -}}
 

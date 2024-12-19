@@ -9,8 +9,8 @@ spec:
       app: {{ .Release.Name }}-local-storage-exporter
   podMetricsEndpoints:
   - port: metrics
-    interval: 30s
-    scrapeTimeout: 10s
+    interval: {{ .Values.podMonitor.interval }}
+    scrapeTimeout: {{ .Values.podMonitor.scrapeTimeout }}
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}

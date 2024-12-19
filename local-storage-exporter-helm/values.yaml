@@ -1,12 +1,18 @@
-storageClassName:
+storageClassNames: []
 storagePath:
 
 metricsPort: 9100
+serviceEnabled: false
+updateInterval: 30s
 
 serviceMonitor:
   enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
 podMonitor:
   enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
 
 imagePullPolicy: IfNotPresent
 imagePullSecrets: []
