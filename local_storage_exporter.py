@@ -26,7 +26,7 @@ _logger.addHandler(handler)
 
 # fmt: off
 # Compile the regex pattern once
-STORAGE_CAPACITY_PATTERN = re.compile(r"(\d+)([a-zA-Z]+)")
+STORAGE_CAPACITY_PATTERN = re.compile(r"(\d*[,|\.]?\d+)([a-zA-Z]+)")
 STORAGE_UNITS = {
     "Ki": 1024, "Mi": 1024**2, "Gi": 1024**3, "Ti": 1024**4, "Pi": 1024**5, "Ei": 1024**6,
     "k": 10**3, "M": 10**6,    "G": 10**9,    "T": 10**12,   "P": 10**15,   "E": 10**18
@@ -39,7 +39,7 @@ def convert_storage_capacity_to_bytes(storage_capacity: str) -> int:
     if match:
         value, unit = match.groups()
         if unit in STORAGE_UNITS:
-            return int(value) * STORAGE_UNITS[unit]
+            return int(float(value) * STORAGE_UNITS[unit])
     return int(storage_capacity)
 
 
