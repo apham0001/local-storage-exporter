@@ -13,8 +13,7 @@ from kubernetes.client.models.v1_pod import V1Pod
 from . import utils, metrics
 
 
-_logger = logging.getLogger(__name__)
-
+_logger = utils.createLogger(__name__)
 
 class LocalStorageExporter:
     k8s_client: client.CoreV1Api
@@ -160,7 +159,14 @@ class LocalStorageExporter:
 
     def update_pv_metrics(self):
         pvs = self.get_pvs()
+        pv: V1PersistentVolume
         for pv in pvs.items:
+            pv_node_name = pv.spec.node_affinity.required.node_selector_terms[0].match_expressions[0].values[0]
+            if pv_node_name != self.node_name:
+                _logger.debug(
+                    f"Skipping PV {pv.metadata.name} because it is not on this node ({self.node_name} but in node {pv_node_name})"
+                )
+                continue
             usage = self.get_pv_usage(pv)
             pvc_name = pv.spec.claim_ref.name
             pvc_namespace = pv.spec.claim_ref.namespace

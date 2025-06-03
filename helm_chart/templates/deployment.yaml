@@ -45,6 +45,8 @@ spec:
               value: {{ quote $metricsPort }}
             - name: UPDATE_INTERVAL
               value: {{ quote .Values.updateInterval }}
+            - name: LOGLEVEL
+              value: {{ .Values.logLevel | upper | quote }}
           livenessProbe:
             httpGet:
               path: /

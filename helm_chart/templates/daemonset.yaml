@@ -1,7 +1,5 @@
 {{ include "validate.requiredValues" . }}
 {{ $metricsPort := include "validate.metricsPort" . }}
-{{ include "validate.imagePullPolicy" . }}
-{{ include "validate.imagePullSecrets" . }}
 ---
 {{ if .Values.daemonSet.enable -}}
 apiVersion: apps/v1
@@ -32,12 +30,12 @@ spec:
       {{ end -}}
       containers:
         - name: {{ .Release.Name }}-local-storage-exporter
-          {{ if .Values.repository -}}
-          image: {{ .Values.repository }}/local-storage-exporter:{{ .Values.tag }}
+          {{ if .Values.image.registry -}}
+          image: {{ .Values.image.registry }}/local-storage-exporter:{{ .Values.image.tag }}
           {{ else -}}
           image: local-storage-exporter:{{ .Values.tag }}
           {{ end -}}
-          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           volumeMounts:
             - name: node-data
               mountPath: /volumes # Where it appears in container
@@ -52,6 +50,8 @@ spec:
               value: {{ quote $metricsPort }}
             - name: UPDATE_INTERVAL
               value: {{ quote .Values.updateInterval }}
+            - name: LOGLEVEL
+              value: {{ .Values.logLevel | upper | quote }}
       volumes:
         - name: node-data
           hostPath:

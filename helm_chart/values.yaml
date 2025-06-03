@@ -19,11 +19,13 @@ image:
   imagePullPolicy: IfNotPresent
   registry: 
 
+logLevel: info
+
 imagePullSecrets: []
 
 daemonSet:
-  enable: false
+  enable: true
 
 deployment:
-  enable: true
+  enable: false
   replicas: 1
