@@ -1,5 +1,5 @@
 storageClassNames: []
-storagePath:
+storagePaths: []
 
 metricsPort: 9100
 serviceEnabled: true

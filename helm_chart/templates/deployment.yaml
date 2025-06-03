@@ -32,9 +32,11 @@ spec:
           {{ end -}}
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           volumeMounts:
-            - name: node-data
-              mountPath: /volumes # Where it appears in container
-              readOnly: true
+          {{ range .Values.storagePaths -}}
+          - name: "node-data-{{ include "urlsafeB64enc" . | lower }}"
+            mountPath: "/volumes/{{ include "urlsafeB64enc" . | lower }}" # Where it appears in container
+            readOnly: true
+          {{ end -}}
           ports:
             - containerPort: {{ $metricsPort }}
               name: metrics
@@ -60,8 +62,10 @@ spec:
             initialDelaySeconds: 3
             periodSeconds: 15
       volumes:
-        - name: node-data
-          hostPath:
-            path: {{ .Values.storagePath }}
-            type: Directory # Ensures directory exists
+      {{ range .Values.storagePaths -}}
+      - name: "node-data-{{ include "urlsafeB64enc" . | lower }}"
+        hostPath:
+          path: {{ . }}
+          type: Directory # Ensures directory exists
+      {{ end -}}
 {{ end -}}

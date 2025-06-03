@@ -14,13 +14,7 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}-local-storage-exporter
-    spec:
-      tolerations:
-        - key: node-role.kubernetes.io/control-plane
-          operator: Exists        
-          effect: NoSchedule
-        - key: node-role.kubernetes.io/master
-
+    spec:        
       serviceAccountName: {{ .Release.Name }}-local-storage-exporter-serviceaccount
       {{ if .Values.imagePullSecrets -}}
       imagePullSecrets:
@@ -37,9 +31,11 @@ spec:
           {{ end -}}
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           volumeMounts:
-            - name: node-data
-              mountPath: /volumes # Where it appears in container
-              readOnly: true
+          {{ range .Values.storagePaths -}}
+          - name: "node-data-{{ include "urlsafeB64enc" . | lower }}"
+            mountPath: "/volumes/{{ include "urlsafeB64enc" . | lower }}" # Where it appears in container
+            readOnly: true
+          {{ end -}}
           ports:
             - containerPort: {{ $metricsPort }}
               name: metrics
@@ -53,8 +49,10 @@ spec:
             - name: LOGLEVEL
               value: {{ .Values.logLevel | upper | quote }}
       volumes:
-        - name: node-data
-          hostPath:
-            path: {{ .Values.storagePath }}
-            type: Directory # Ensures directory exists
+      {{ range .Values.storagePaths -}}
+      - name: "node-data-{{ include "urlsafeB64enc" . | lower }}"
+        hostPath:
+          path: {{ . }}
+          type: Directory # Ensures directory exists
+      {{ end -}}
 {{ end -}}
