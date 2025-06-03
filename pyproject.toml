@@ -8,3 +8,8 @@ dependencies = [
     "kubernetes==32.0.1",
     "prometheus-client==0.21.1"
 ]
+
+[dependency-groups]
+dev = [
+    "kubernetes-typed==18.20.2",
+]
