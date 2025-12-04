@@ -5,7 +5,7 @@ WORKDIR /app
 
 # Install Python in builder stage and copy to final image to maintain consistent Debian base
 ENV UV_PYTHON_INSTALL_DIR=/python
-RUN uv python install 3.13
+RUN uv python install 3.14
 RUN uv sync --locked --no-dev # It will create a virtual environment in /app/.venv
 
 FROM debian:bookworm-slim@sha256:b4aa902587c2e61ce789849cb54c332b0400fe27b1ee33af4669e1f7e7c3e22f
